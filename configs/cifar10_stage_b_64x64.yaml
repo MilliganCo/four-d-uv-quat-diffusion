@@ -1,0 +1,64 @@
+seed: 42
+output_dir: runs/cifar10_stage_b_64x64
+
+# данные
+dataset: CIFAR10_64x64
+image_size: 64  # Увеличено до 64x64
+channels: 3
+num_workers: 4
+
+# сетка блоков
+stride_s: 2        # (U,V)∈{0,1}
+uv_kernel: 3       # ИЗМЕНЕНО: теперь используется kernel 3 для лучшего качества
+
+# модель
+base_channels: 64
+channel_mults: [1, 2, 2, 2]   # по XY
+num_res_blocks: 2
+attn_resolutions: []          # при желании можно добавить лок. внимание по XY
+
+# условная генерация (текстовые промпты)
+use_text_conditioning: true   # Включена условная генерация
+text_encoder: "class_label"    # "class_label" для CIFAR-10 классов, "clip" для CLIP (требует установки)
+text_dim: 128                  # Размерность текстовых эмбеддингов
+
+# диффузия
+beta_schedule: cosine
+num_timesteps: 1000
+
+# оптимизация
+batch_size: 10  # Увеличено для ускорения (умеренный режим)
+lr: 2.0e-4
+weight_decay: 0.0
+ema_decay: 0.999
+mixed_precision: true
+gradient_accumulation_steps: 7  # Эффективный batch_size = 10 * 7 = 70
+
+# регуляризации
+lambda_uv: 0.1
+lambda_norm: 0.0
+
+# логгинг
+use_wandb: false
+project: 4d-uv-quat-stage-b
+run_name: cifar10-64x64-uv3-text
+
+# выборка
+sample_steps: 100        # Больше шагов для лучшего качества
+shift_averaging: true   # усреднение по (δU,δV)
+
+# UV-свёртка (Этап B)
+quat_weight_norm: true  # ВКЛЮЧЕНО: проекция весов A,B,C,D на единичную норму
+quat_norm_eps: 1.0e-8
+
+# предпросмотр и логгинг
+sample_every: 4000        # шаги тренировки между предпросмотрами (увеличено для ускорения)
+preview_n: 16             # число картинок в предпросмотре
+sample_steps_preview: 50  # быстрый DDIM для предпросмотра
+log_jsonl: runs/cifar10_stage_b_64x64/log.jsonl
+previews_dir: runs/cifar10_stage_b_64x64/previews
+
+# продолжение обучения
+checkpoint_interval: 20000  # интервал сохранения чекпоинтов (шаги)
+resume_checkpoint: null     # путь к чекпоинту для продолжения (null = автоопределение)
+

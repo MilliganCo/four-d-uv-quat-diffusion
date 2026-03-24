@@ -1,0 +1,58 @@
+seed: 42
+output_dir: runs/cifar10
+
+# данные
+dataset: CIFAR10
+image_size: 32
+channels: 3
+num_workers: 4
+
+# сетка блоков
+stride_s: 2        # (U,V)∈{0,1}
+uv_kernel: 1       # 1 или 3; 3 включает соседства по UV с циклич. паддингом
+
+# модель
+base_channels: 64
+channel_mults: [1, 2, 2, 2]   # по XY
+num_res_blocks: 2
+attn_resolutions: []          # при желании можно добавить лок. внимание по XY
+
+# диффузия
+beta_schedule: cosine
+num_timesteps: 1000
+
+# оптимизация
+batch_size: 32  # Уменьшено для экономии VRAM
+lr: 2.0e-4
+weight_decay: 0.0
+ema_decay: 0.999
+mixed_precision: true
+gradient_accumulation_steps: 2  # Эффективный batch_size = 32 * 2 = 64
+
+# регуляризации
+lambda_uv: 0.1
+lambda_norm: 0.0
+
+# логгинг
+use_wandb: false
+project: 4d-uv-quat
+run_name: cifar10-baseline
+
+# выборка
+sample_steps: 50        # DDIM-шаги для sample.py
+shift_averaging: true   # усреднение по (δU,δV)
+
+# UV-свёртка (Этап B)
+quat_weight_norm: false # проекция весов A,B,C,D на единичную норму
+quat_norm_eps: 1.0e-8
+
+# предпросмотр и логгинг (Этап B)
+sample_every: 2000        # шаги тренировки между предпросмотрами
+preview_n: 16             # число картинок в предпросмотре
+sample_steps_preview: 20  # быстрый DDIM для предпросмотра
+log_jsonl: runs/cifar10/log.jsonl
+previews_dir: runs/cifar10/previews
+
+# продолжение обучения
+checkpoint_interval: 20000  # интервал сохранения чекпоинтов (шаги)
+resume_checkpoint: null     # путь к чекпоинту для продолжения (null = автоопределение)

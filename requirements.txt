@@ -1,0 +1,15 @@
+torch
+torchvision
+torchaudio
+einops
+tqdm
+pyyaml
+pillow
+clean-fid
+lpips
+wandb
+mlflow
+accelerate
+streamlit
+pandas
+
